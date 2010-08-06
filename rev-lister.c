@@ -42,10 +42,12 @@ int
 main (int   argc,
       char**argv)
 {
+        gchar* author = NULL;
         gchar* since = NULL;
         GOptionContext* parser;
         GOptionEntry  entries[] =
           {
+            {"author", 'a', 0, G_OPTION_ARG_STRING, &author, N_("only count commits from AUTHOR"), N_("AUTHOR")},
             {"since", 's', 0, G_OPTION_ARG_STRING, &since, N_("only count commits starting at DATE"), N_("DATE")},
             {NULL}
           };
@@ -75,6 +77,10 @@ main (int   argc,
         if (since)
           {
             g_ptr_array_add (spawn_argv, g_strdup_printf ("--since=%s", since));
+          }
+        if (author)
+          {
+            g_ptr_array_add (spawn_argv, g_strdup_printf ("--author=%s", author));
           }
 
         g_ptr_array_add (spawn_argv, "--all");
