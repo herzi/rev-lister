@@ -47,10 +47,10 @@ main (int   argc,
 	gchar **lines  = NULL;
 	gchar **iter;
 
-	g_spawn_command_line_sync ("git-rev-list --all --pretty=format:%ai", &out, NULL, &status, &error);
+	g_spawn_command_line_sync ("git rev-list --all --pretty=format:%ai", &out, NULL, &status, &error);
 
 	if (error) {
-		g_warning ("Error executing 'git-rev-list': %s",
+		g_warning ("Error executing 'git rev-list': %s",
 			   error->message);
 		g_error_free (error);
 		g_free (out);
@@ -58,7 +58,7 @@ main (int   argc,
 	};
 
 	if (status != 0) {
-		g_warning ("git-rev-list didn't return 0");
+		g_warning ("git rev-list didn't return 0");
 		g_free (out);
 		return 2;
 	}
