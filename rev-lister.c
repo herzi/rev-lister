@@ -22,6 +22,7 @@
  */
 
 #include <glib.h>
+#include <glib/gi18n.h>
 
 #define _XOPEN_SOURCE
 #include <time.h>
@@ -41,22 +42,47 @@ int
 main (int   argc,
       char**argv)
 {
+        gchar* since = NULL;
+        GOptionContext* parser;
+        GOptionEntry  entries[] =
+          {
+            {"since", 's', 0, G_OPTION_ARG_STRING, &since, N_("only count commits starting at DATE"), N_("DATE")},
+            {NULL}
+          };
 	GError* error  = NULL;
 	gchar * out    = NULL;
 	gint    status = 0;
 	gchar **lines  = NULL;
 	gchar **iter;
-        gchar const* argv[] =
+        GPtrArray* spawn_argv = g_ptr_array_new ();
+
+        parser = g_option_context_new ("");
+        g_option_context_add_main_entries (parser, entries, NULL);
+        if (!g_option_context_parse (parser, &argc, &argv, &error))
           {
-            "git rev-list",
-            "--pretty=format:%ai",
-            "--all",
-            NULL
-          };
+            g_printerr ("Usage: %s\n%s\n",
+                        argv[0],
+                        error->message);
+            g_error_free (error);
+
+            return 1;
+          }
+
+        g_ptr_array_add (spawn_argv, "git");
+        g_ptr_array_add (spawn_argv, "rev-list");
+        g_ptr_array_add (spawn_argv, "--pretty=format:%ai");
+
+        if (since)
+          {
+            g_ptr_array_add (spawn_argv, g_strdup_printf ("--since=%s", since));
+          }
+
+        g_ptr_array_add (spawn_argv, "--all");
+        g_ptr_array_add (spawn_argv, NULL);
 
         g_spawn_sync (g_get_current_dir (),
-                      argv, NULL,
-                      0, NULL, NULL,
+                      (gchar**) spawn_argv->pdata, NULL,
+                      G_SPAWN_SEARCH_PATH, NULL, NULL,
                       &out, NULL,
                       &status, &error);
 
