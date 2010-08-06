@@ -46,8 +46,19 @@ main (int   argc,
 	gint    status = 0;
 	gchar **lines  = NULL;
 	gchar **iter;
+        gchar const* argv[] =
+          {
+            "git rev-list",
+            "--pretty=format:%ai",
+            "--all",
+            NULL
+          };
 
-	g_spawn_command_line_sync ("git rev-list --all --pretty=format:%ai", &out, NULL, &status, &error);
+        g_spawn_sync (g_get_current_dir (),
+                      argv, NULL,
+                      0, NULL, NULL,
+                      &out, NULL,
+                      &status, &error);
 
 	if (error) {
 		g_warning ("Error executing 'git rev-list': %s",
@@ -83,3 +94,4 @@ main (int   argc,
 	return 0;
 }
 
+/* vim:set et: */
